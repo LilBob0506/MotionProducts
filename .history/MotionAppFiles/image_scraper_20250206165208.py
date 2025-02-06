@@ -3,11 +3,9 @@ import requests
 import urllib.parse
 import urllib.request
 from bs4 import BeautifulSoup
-from excel_parse import get_single_entry
 
-# Function to produce search URLs
 def fetch_image_urls(manufacturer, part_number, num_images=5):
-    headers = {"User-Agent": "Mozilla/5.0"} 
+    headers = {"User-Agent": "Mozilla/5.0"}
     
     search_query = f"{manufacturer} {part_number} product image"
     google_url = f"https://www.google.com/search?tbm=isch&q={urllib.parse.quote(search_query)}"
@@ -30,7 +28,6 @@ def fetch_image_urls(manufacturer, part_number, num_images=5):
     
     return image_urls
 
-# Function to download images and name them "ManufacturerName"_"PartNumber"
 def download_images(image_urls, manufacturer, part_number):
     save_dir = f"images/{manufacturer}_{part_number}"
     os.makedirs(save_dir, exist_ok=True)
@@ -43,20 +40,16 @@ def download_images(image_urls, manufacturer, part_number):
         except Exception as e:
             print(f"Failed to download {img_url}: {e}")
 
-# Main Function 
 if __name__ == "__main__":
-    excel_file = input("Enter the Excel file path: ")
-    entry = get_single_entry(excel_file)
+    manufacturer = input("Enter manufacturer name: ")
+    part_number = input("Enter product part number: ")
     
-    if entry:
-        manufacturer, part_number = entry
-        print(f"Searching images for: {manufacturer} {part_number}")
-        image_urls = fetch_image_urls(manufacturer, part_number)
-        
-        if image_urls:
-            print("Downloading images...")
-            download_images(image_urls, manufacturer, part_number)
-        else:
-            print(f"No images found for {manufacturer} {part_number}.")
+    print("Searching for images...")
+    image_urls = fetch_image_urls(manufacturer, part_number)
+    
+    if image_urls:
+        print("Downloading images...")
+        download_images(image_urls, manufacturer, part_number)
+        print("Done!")
     else:
-        print("No valid entries found in the Excel file.")
+        print("No images found.")
