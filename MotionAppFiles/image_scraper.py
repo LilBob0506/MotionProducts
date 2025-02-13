@@ -3,13 +3,13 @@ import requests
 import urllib.parse
 import urllib.request
 from bs4 import BeautifulSoup
-from excel_parse import get_single_entry
+from excel_parse import get_entries
 
 # Function to produce search URLs
 def fetch_image_urls(manufacturer, part_number, num_images=5):
     headers = {"User-Agent": "Mozilla/5.0"} 
-    
     search_query = f"{manufacturer} {part_number} product image"
+    
     google_url = f"https://www.google.com/search?tbm=isch&q={urllib.parse.quote(search_query)}"
     bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(search_query)}"
     
@@ -25,8 +25,10 @@ def fetch_image_urls(manufacturer, part_number, num_images=5):
             img_url = img.get("src") or img.get("data-src")
             if img_url and img_url.startswith("http"):
                 image_urls.append(img_url)
-                if len(image_urls) >= num_images:
-                    return image_urls
+                if len(image_urls) >= num_images:  # Break only after reaching the total number of images
+                    break
+        if len(image_urls) >= num_images:
+            break
     
     return image_urls
 
@@ -46,17 +48,17 @@ def download_images(image_urls, manufacturer, part_number):
 # Main Function 
 if __name__ == "__main__":
     excel_file = input("Enter the Excel file path: ")
-    entry = get_single_entry(excel_file)
-    
-    if entry:
-        manufacturer, part_number = entry
-        print(f"Searching images for: {manufacturer} {part_number}")
-        image_urls = fetch_image_urls(manufacturer, part_number)
-        
-        if image_urls:
-            print("Downloading images...")
-            download_images(image_urls, manufacturer, part_number)
-        else:
-            print(f"No images found for {manufacturer} {part_number}.")
+    entries = get_entries(excel_file)  # Fetch 10 entries as tuples
+
+    if entries:
+        for i, (manufacturer, part_number) in enumerate(entries):
+            print(f"\n({i + 1}/{len(entries)}) Searching images for: {manufacturer} {part_number}")
+            image_urls = fetch_image_urls(manufacturer, part_number)
+            
+            if image_urls:
+                print("Downloading images...")
+                download_images(image_urls, manufacturer, part_number)
+            else:
+                print(f"No images found for {manufacturer} {part_number}.")
     else:
         print("No valid entries found in the Excel file.")
