@@ -3,6 +3,8 @@ import pandas as pd
 def get_entries(file_path):
     try:
         df = pd.read_excel(file_path)
+        #For testing purposes, limit the number of rows to 10
+        #df = pd.read_excel(file_path, nrows=10)
         if "MFR_NAME" in df.columns and "Part Number" in df.columns and "Product Description" and "[<ID>]" in df.columns:
             # Convert each row to a tuple (manufacturer, part_number, Product Description, [<ID>])
             entries = [tuple(row) for row in df[["MFR_NAME", "Part Number", "Product Description", "[<ID>]"]].dropna().values]

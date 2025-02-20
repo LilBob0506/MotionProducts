@@ -10,6 +10,7 @@ Ensure you have **Python 3.x** installed on your system.
 Install the necessary dependencies using:
 ```sh
 pip install requests beautifulsoup4 pandas openpyxl
+pip install Pillow
 ```
 
 ## Project Structure
