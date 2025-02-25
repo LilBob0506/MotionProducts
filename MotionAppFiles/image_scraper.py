@@ -34,13 +34,13 @@ def fetch_image_urls(manufacturer, part_number, description, num_images=20):
     return image_urls
 
 # Function to download images and name them "ManufacturerName"_"PartNumber"
-def download_images(image_urls):
+def download_images(image_urls, manufacturer, part_number):
     save_dir = f"images/staging"
     os.makedirs(save_dir, exist_ok=True)
     
     for idx, img_url in enumerate(image_urls):
         try:
-            img_path = os.path.join(save_dir, f"image_{idx+1}.jpg")
+            img_path = os.path.join(save_dir, f"{manufacturer}_{part_number}_{idx}.jpg")
             urllib.request.urlretrieve(img_url, img_path)
             print(f"Downloaded: {img_path}")
         except Exception as e:
@@ -72,7 +72,7 @@ if __name__ == "__main__":
             
             if image_urls:
                 print("Downloading images...")
-                download_images(image_urls)
+                download_images(image_urls, manufacturer, part_number)
                 resize_images(f"images/staging", f"images/{manufacturer}/{id}")
                 clear_directory()
             else:
