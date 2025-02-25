@@ -5,6 +5,12 @@ import urllib.request
 from bs4 import BeautifulSoup
 from excel_parse import get_entries
 from autoimage import resize_images
+from urllib.parse import urlparse
+
+# Function to check if url is valid
+def is_valid_url(url):
+    parsed = urlparse(url)
+    return bool(parsed.netloc) and bool(parsed.scheme)
 
 # Function to produce search URLs
 def fetch_image_urls(manufacturer, part_number, description, num_images=20):
@@ -24,7 +30,7 @@ def fetch_image_urls(manufacturer, part_number, description, num_images=20):
         
         for img in img_tags:
             img_url = img.get("src") or img.get("data-src")
-            if img_url and img_url.startswith("http"):
+            if img_url and img_url.startswith("http") and is_valid_url(img_url):
                 image_urls.append(img_url)
                 if len(image_urls) >= num_images:  # Break only after reaching the total number of images
                     break
