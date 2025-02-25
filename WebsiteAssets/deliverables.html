@@ -21,15 +21,56 @@
     <main>
         <h2>Project Deliverables</h2>
         <p>Here you will find all the presentations, documents, and source code.</p>
-        <ul>
-            <li><a href="documents/presentation.pdf">Final Presentation</a></li>
-            <li><a href="documents/report.pdf">Project Report</a></li>
-            <li><a href="https://github.com/LilBob0506/MotionProducts">GitHub Repository</a></li>
-        </ul>
+
+        <div class="document-list">
+            <a href="Docs/Motion_Pitch.pptx" target="_blank">Project Pitch</a>
+            <a href="Docs/Motion_Project_Backlog.xlsx" target="_blank">Project Backlog</a>
+            <a href="https://github.com/LilBob0506/MotionProducts" target="_blank">GitHub Repository</a>
+        </div>
+
+        <h2>Sprint Documents</h2>
+        <div class="sprint-container">
+            <div class="sprint-dropdown">
+                <div class="dropdown-header" onclick="toggleDropdown('sprint1')">Sprint 1 Documents</div>
+                <div id="sprint1" class="dropdown-content">
+                    <a href="Sprint1/Motion_sprint_1.pptx" target="_blank">Sprint 1 Presentation</a>
+                    <a href="Sprint1/Sprint1_Goals_Backlog.docx" target="_blank">Sprint 1 Goals Backlog</a>
+                    <a href="Sprint1/Sprint1DailyJournal.docx" target="_blank">Sprint 1 Daily Journal</a>
+                    <a href="Sprint1/Sprint1Retrospective.docx" target="_blank">Sprint 1 Retrospective</a>
+                </div>
+            </div>
+
+            <div class="sprint-dropdown">
+                <div class="dropdown-header" onclick="toggleDropdown('sprint2')">Sprint 2 Documents</div>
+                <div id="sprint2" class="dropdown-content">
+                    <a href="Sprint2/Motion_sprint_2.pptx" target="_blank">Sprint 2 Presentation</a>
+                    <a href="Sprint2/Sprint2_Goals_Backlog.docx" target="_blank">Sprint 2 Goals Backlog</a>
+                    <a href="Sprint2/Sprint2DailyJournal.docx" target="_blank">Sprint 2 Daily Journal</a>
+                    <a href="Sprint2/Sprint2Retrospective.docx" target="_blank">Sprint 2 Retrospective</a>
+                </div>
+            </div>
+
+            <div class="sprint-dropdown">
+                <div class="dropdown-header" onclick="toggleDropdown('sprint3')">Sprint 3 Documents</div>
+                <div id="sprint3" class="dropdown-content">
+                    <a href="Sprint3/Motion_sprint_3.pptx" target="_blank">Sprint 3 Presentation</a>
+                    <a href="Sprint3/Sprint3_Goals_Backlog.docx" target="_blank">Sprint 3 Goals Backlog</a>
+                    <a href="Sprint3/Sprint3DailyJournal.docx" target="_blank">Sprint 3 Daily Journal</a>
+                    <a href="Sprint3/Sprint3Retrospective.docx" target="_blank">Sprint 3 Retrospective</a>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2025 Motion Project. All rights reserved.</p>
     </footer>
+
+    <script>
+        function toggleDropdown(id) {
+            var content = document.getElementById(id);
+            content.style.display = content.style.display === "block" ? "none" : "block";
+        }
+    </script>
 </body>
 </html>

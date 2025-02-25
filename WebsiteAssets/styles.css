@@ -38,7 +38,7 @@ nav ul li a:hover {
 
 /* Main Content */
 main {
-    max-width: 80%; /* Set max width to 80% of the viewport */
+    max-width: 80%;
     margin: 30px auto;
     padding: 30px;
     background: white;
@@ -46,47 +46,26 @@ main {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Team Grid Layout (5 columns for team members) */
+/* Team Grid Layout */
 .team-container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5 equal columns for team members */
-    grid-template-rows: 1fr; /* One row for all members */
-    gap: 20px; /* 20px gap between grid items */
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 1fr;
+    gap: 20px;
     justify-items: center;
     padding: 30px;
     margin: 0 auto;
-    width: 100%; /* Ensure full width for the container */
+    width: 100%;
 }
 
-/* Position the existing 5 members in the grid */
-.team-member:nth-child(1) {
-    grid-column: 1;
-}
-
-.team-member:nth-child(2) {
-    grid-column: 2;
-}
-
-.team-member:nth-child(3) {
-    grid-column: 3;
-}
-
-.team-member:nth-child(4) {
-    grid-column: 4;
-}
-
-.team-member:nth-child(5) {
-    grid-column: 5;
-}
-
-/* Position the new members in the gaps between existing members */
-.team-member:nth-child(6) {
-    grid-column: 2; /* 6th member between 2nd and 3rd */
-}
-
-.team-member:nth-child(7) {
-    grid-column: 4; /* 7th member between 3rd and 4th */
-}
+/* Positioning Team Members */
+.team-member:nth-child(1) { grid-column: 1; }
+.team-member:nth-child(2) { grid-column: 2; }
+.team-member:nth-child(3) { grid-column: 3; }
+.team-member:nth-child(4) { grid-column: 4; }
+.team-member:nth-child(5) { grid-column: 5; }
+.team-member:nth-child(6) { grid-column: 2; }
+.team-member:nth-child(7) { grid-column: 4; }
 
 /* Team Member Card */
 .team-member {
@@ -96,6 +75,7 @@ main {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: transform 0.2s ease-in-out;
+    cursor: pointer;
 }
 
 .team-member:hover {
@@ -106,7 +86,7 @@ main {
 .team-member img {
     width: 100%;
     border-radius: 50%;
-    height: 150px; /* Fixed height for images */
+    height: 150px;
     object-fit: cover;
     border: 3px solid #9e1b32;
 }
@@ -114,13 +94,13 @@ main {
 /* Team Member Name */
 .team-member h3 {
     margin-top: 10px;
-    font-size: 20px; /* Fixed font size for names */
+    font-size: 20px;
     color: #333;
 }
 
 /* Team Member Role */
 .team-member p {
-    font-size: 16px; /* Fixed font size for roles */
+    font-size: 16px;
     color: #666;
 }
 
@@ -133,7 +113,7 @@ footer {
     margin-top: 30px;
 }
 
-/* Bio page styles */
+/* Bio Page Styles */
 .bio-container {
     display: flex;
     flex-wrap: wrap;
@@ -169,4 +149,69 @@ footer {
 .bio-contact a {
     color: #333;
     text-decoration: none;
+}
+
+/* Deliverables Section */
+.document-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* No bullets for document links */
+.document-list a {
+    text-decoration: none;
+    display: block;
+    padding: 5px 0;
+}
+
+/* Sprint Dropdowns Container */
+.sprint-container {
+    display: flex;
+    justify-content: space-between; /* Space out the dropdowns evenly */
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Individual Sprint Dropdown */
+.sprint-dropdown {
+    flex: 1; /* Equal width */
+    min-width: 200px; /* Prevents too small dropdowns */
+    max-width: 300px;
+    text-align: left;
+}
+
+/* Dropdown Header */
+.dropdown-header {
+    cursor: pointer;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.dropdown-header:hover {
+    background-color: #ddd;
+}
+
+/* Dropdown Content */
+.dropdown-content {
+    display: none;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Dropdown Links */
+.dropdown-content a {
+    display: block;
+    text-decoration: none;
+    padding: 5px 0;
+    color: #333;
+}
+
+.dropdown-content a:hover {
+    background-color: #eee;
 }
