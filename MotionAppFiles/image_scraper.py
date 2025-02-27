@@ -152,8 +152,9 @@ def run():
     scraping_thread.start()
 
 def start_scraping(excel_file):
-    global current_entry_index
+    global current_entry_index, total_entry_count
     entries = get_entries(excel_file)  # Fetch 10 entries as tuples
+    total_entry_count = len(entries)
 
     if entries:
         for i, (manufacturer, part_number, description, id) in enumerate(entries):
@@ -164,6 +165,7 @@ def start_scraping(excel_file):
             #if manufacturer == "3M" or manufacturer == "3M HEALTH CARE":
             #    continue
             current_entry_index = i + 1
+            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=3,column=1,padx=10,pady=10)
             print(f"\n({i + 1}/{len(entries)}) Searching images for: {manufacturer} {part_number}, aka: {id}")
             image_urls = fetch_image_urls(manufacturer, part_number, description)
             
@@ -184,9 +186,11 @@ def on_closing():
         root.destroy()
 
 def stop_running():
-    global should_stop, current_entry_index
+    global should_stop, current_entry_index, running
     should_stop = True
+    running = False
     messagebox.showinfo("Info", f"Scraping stopped at entry {current_entry_index}.")
+    
 
 # Main Function 
 if __name__ == "__main__":
@@ -194,9 +198,9 @@ if __name__ == "__main__":
     root.title("Image Scraper")
 
     if os.name == 'nt':
-        root.state('-zoomed')
+        root.state('zoomed')
     else:
-        root.attributes('-fullscreen')
+        root.attributes('-fullscreen', True)
 
     entry_var = tk.StringVar()
 
@@ -216,8 +220,6 @@ if __name__ == "__main__":
     tk.Button(frame, text="Browse", command=custom_file_dialog).grid(row=1, column=2, padx=10, pady=10)
     tk.Button(frame, text="Run", command=run).grid(row=2, column=1, padx=10, pady=10)
     tk.Button(frame, text="Stop", command=stop_running).grid(row=2, column=2, padx=10, pady=10)
-    #tk.Label(frame, text= f"Entry ()")
-    #excel_file = input("Enter the Excel file path: ")
     
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
