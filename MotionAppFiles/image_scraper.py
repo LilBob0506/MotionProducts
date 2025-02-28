@@ -74,7 +74,7 @@ def custom_file_dialog():
         selected_file = file_listbox.get(file_listbox.curselection())
         file_path = os.path.join(current_dir, selected_file)
         if os.path.isfile(file_path):
-            entry_var.set(file_path)
+            file_var.set(file_path)
             dialog.destroy()
         else:
             messagebox.showerror("Error", "Please select a valid file.")
@@ -147,15 +147,16 @@ def run():
         messagebox.showwarning("Warning", "Scraping is already in progress.")
         return
     running = True
-    excel_file = entry_var.get()
-    scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,))
+    excel_file = file_var.get()
+    entry_range_x = entry_var_x.get()
+    entry_range_y = entry_var_y.get()
+    scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,))
     scraping_thread.start()
 
-def start_scraping(excel_file):
+def start_scraping(excel_file, entry_range_x, entry_range_y):
     global current_entry_index, total_entry_count
     entries = get_entries(excel_file)  # Fetch 10 entries as tuples
     total_entry_count = len(entries)
-
     if entries:
         for i, (manufacturer, part_number, description, id) in enumerate(entries):
             global should_stop
@@ -164,8 +165,12 @@ def start_scraping(excel_file):
             # Skip certain manufactuers for accuracy checking
             #if manufacturer == "3M" or manufacturer == "3M HEALTH CARE":
             #    continue
+            # For range of entries
+            if entry_range_x == 0 and entry_range_x <= i and entry_range_y ==0 and entry_range_y >= i:
+                continue
+
             current_entry_index = i + 1
-            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=3,column=1,padx=10,pady=10)
+            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=4,column=1,padx=10,pady=10)
             print(f"\n({i + 1}/{len(entries)}) Searching images for: {manufacturer} {part_number}, aka: {id}")
             image_urls = fetch_image_urls(manufacturer, part_number, description)
             
@@ -178,6 +183,7 @@ def start_scraping(excel_file):
                 print(f"No images found for {manufacturer} {part_number}.")
     else:
         print("No valid entries found in the Excel file.")
+    return
 
 def on_closing():
     global should_stop
@@ -200,10 +206,11 @@ if __name__ == "__main__":
     if os.name == 'nt':
         root.state('zoomed')
     else:
-        root.attributes('-fullscreen', True)
+        root.attributes('-fullscreen')
 
-    entry_var = tk.StringVar()
-
+    file_var = tk.StringVar()
+    entry_var_x = tk.StringVar()
+    entry_var_y = tk.StringVar()
     frame = tk.Frame(root)
     frame.pack(expand=True)
 
@@ -215,11 +222,14 @@ if __name__ == "__main__":
     img_label = tk.Label(frame, image=photo)
     img_label.grid(row=0, column=0, columnspan=3, pady=0)
 
-    tk.Label(frame, text="Select Excel File:").grid(row=1, column=0, padx=10, pady=10)
-    tk.Entry(frame, textvariable=entry_var, width=50).grid(row=1, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Browse", command=custom_file_dialog).grid(row=1, column=2, padx=10, pady=10)
-    tk.Button(frame, text="Run", command=run).grid(row=2, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Stop", command=stop_running).grid(row=2, column=2, padx=10, pady=10)
+    tk.Label(frame, text="Enter range of Entries x,y or enter 0,0 for All Entries:").grid(row=1, column=0, padx=0, pady=0)
+    tk.Entry(frame, textvariable=entry_var_x, width=10).grid(row=1, column=1, padx=0, pady=0)
+    tk.Entry(frame, textvariable=entry_var_y, width=10).grid(row=1, column=2, padx=0, pady=0)
+    tk.Label(frame, text="Select Excel File:").grid(row=2, column=0, padx=10, pady=10)
+    tk.Entry(frame, textvariable=file_var, width=50).grid(row=2, column=1, padx=10, pady=10)
+    tk.Button(frame, text="Browse", command=custom_file_dialog).grid(row=2, column=2, padx=10, pady=10)
+    tk.Button(frame, text="Run", command=run).grid(row=3, column=1, padx=10, pady=10)
+    tk.Button(frame, text="Stop", command=stop_running).grid(row=3, column=2, padx=10, pady=10)
     
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
