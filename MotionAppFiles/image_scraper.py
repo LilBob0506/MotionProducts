@@ -148,15 +148,20 @@ def run():
         return
     running = True
     excel_file = file_var.get()
-    entry_range_x = entry_var_x.get()
-    entry_range_y = entry_var_y.get()
+    try:
+        entry_range_x = int(entry_var_x.get())
+        entry_range_y = int(entry_var_y.get())
+    except ValueError:
+        messagebox.showerror("Error", "Please enter valid entry range.")
+        running = False
+        return
     scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,))
     scraping_thread.start()
 
 def start_scraping(excel_file, entry_range_x, entry_range_y):
     global current_entry_index, total_entry_count
     entries = get_entries(excel_file)  # Fetch 10 entries as tuples
-    total_entry_count = len(entries)
+    total_entry_count = len(entries) + 1
     if entries:
         for i, (manufacturer, part_number, description, id) in enumerate(entries):
             global should_stop
@@ -166,7 +171,7 @@ def start_scraping(excel_file, entry_range_x, entry_range_y):
             #if manufacturer == "3M" or manufacturer == "3M HEALTH CARE":
             #    continue
             # For range of entries
-            if entry_range_x == 0 and entry_range_x <= i and entry_range_y ==0 and entry_range_y >= i:
+            if (entry_range_x != 0 and i < entry_range_x -1) or (entry_range_y != 0 and entry_range_y <= i):
                 continue
 
             current_entry_index = i + 1
