@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import urllib.parse
 import urllib.request
@@ -17,6 +18,14 @@ running = False
 def is_valid_url(url):
     parsed = urlparse(url)
     return bool(parsed.netloc) and bool(parsed.scheme)
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 # Function to produce search URLs
 def fetch_image_urls(manufacturer, part_number, description, num_images=20):
@@ -219,9 +228,9 @@ if __name__ == "__main__":
     frame = tk.Frame(root)
     frame.pack(expand=True)
 
-    image_path = "Motion_PP_SQ.png"
+    image_path = resource_path("Motion_PP_SQ.png")
     img = Image.open(image_path)
-    img = img.resize((200, 200), Image.ANTIALIAS)
+    img = img.resize((200, 200), Image.LANCZOS)
     photo = ImageTk.PhotoImage(img)
 
     img_label = tk.Label(frame, image=photo)
