@@ -15,7 +15,20 @@ def get_entries(file_path):
     except Exception as e:
         print(f"Error reading Excel file: {e}")
         return []
-
+def get_context_urls(file_path):
+    try: 
+        df = pd.read_excel(file_path)
+        if "MFR_NAME" in df.columns and "URL" in df.columns:
+            # Convert each row to a tuple (manufacturer, url)
+            entries = [tuple(row) for row in df[["MFR_NAME", "URL"]].dropna().values]
+            return entries
+        else:
+            print("Required columns not found in the Excel file.")
+            return []
+    except Exception as e:
+        print(f"Error reading Excel file: {e}")
+        return []
+    
 if __name__ == "__main__":
     excel_file = input("Enter the Excel file path: ")  #Input file path as ~/Directory/fileName.xlsx
     entry = get_entries(excel_file)

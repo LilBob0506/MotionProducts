@@ -4,7 +4,7 @@ import requests
 import urllib.parse
 import urllib.request
 from bs4 import BeautifulSoup
-from excel_parse import get_entries
+from excel_parse import get_entries, get_context_urls
 from autoimage import resize_images
 from urllib.parse import urlparse
 import tkinter as tk
@@ -12,8 +12,10 @@ from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import threading
 
-should_stop = False
-running = False
+should_stop = False # Flag to check if scraping should stop
+running = False # Flag to check if scraping is in progress
+man_website = False # True if manufacturer website is used
+
 # Function to check if url is valid
 def is_valid_url(url):
     parsed = urlparse(url)
@@ -28,12 +30,14 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Function to produce search URLs
-def fetch_image_urls(manufacturer, part_number, description, num_images=20):
+def fetch_image_urls(manufacturer, part_number, con_url):
+    global man_website
+    num_images = 20
     headers = {"User-Agent": "Mozilla/5.0"} 
-    #search_query = f"{manufacturer} {part_number} {description} product image"
-    search_query = f'"{manufacturer} {part_number}"'
-    #search_query = f"site:www.skf.com {manufacturer} "part_number}"" Specific sites
-    #Images/Suppliers/Manufactuerer/ID/Size
+    if man_website:
+        search_query = f'site:{con_url} "{manufacturer} {part_number}"' #Specific sites
+    else:
+        search_query = f'"{manufacturer} {part_number}"'
     
     google_url = f"https://www.google.com/search?tbm=isch&q={urllib.parse.quote(search_query)}"
     bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(search_query)}"
@@ -81,12 +85,15 @@ def clear_directory():
             print(f"Failed to delete {file_path}. Reason: {e}")
     print("Directory cleared.")
 
-def custom_file_dialog():
+def custom_file_dialog(option):
     def on_select():
         selected_file = file_listbox.get(file_listbox.curselection())
         file_path = os.path.join(current_dir, selected_file)
         if os.path.isfile(file_path):
-            file_var.set(file_path)
+            if option == 0:
+                file_var.set(file_path)
+            elif option == 1:
+                context_var.set(file_path)
             dialog.destroy()
         else:
             messagebox.showerror("Error", "Please select a valid file.")
@@ -162,6 +169,7 @@ def run():
     should_stop = False
     messagebox.showinfo("Info", "Scraping started.")
     excel_file = file_var.get()
+    context_file = context_var.get()
     try:
         entry_range_x = int(entry_var_x.get())
         entry_range_y = int(entry_var_y.get())
@@ -169,16 +177,18 @@ def run():
         messagebox.showerror("Error", "Please enter valid entry range.")
         running = False
         return
-    scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,))
+    scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,context_file,))
     scraping_thread.start()
     running = False
     return
 
-def start_scraping(excel_file, entry_range_x, entry_range_y):
-    global current_entry_index, total_entry_count
-    entries = get_entries(excel_file)  # Fetch 10 entries as tuples
+def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
+    global current_entry_index, total_entry_count, man_website
+    entries = get_entries(excel_file)  # Fetch entries as tuples
+    context_urls = get_context_urls(context_file)
     total_entry_count = len(entries) + 1
-    if entries:
+    last_manufacturer = ""
+    if entries and context_urls:
         for i, (manufacturer, part_number, description, id) in enumerate(entries):
             global should_stop
             if should_stop:
@@ -189,16 +199,32 @@ def start_scraping(excel_file, entry_range_x, entry_range_y):
             # For range of entries
             if (entry_range_x != 0 and i < entry_range_x -1) or (entry_range_y != 0 and entry_range_y <= i):
                 continue
-
+            if manufacturer != last_manufacturer:
+                for (url_manufacturer, url) in (context_urls):
+                    #print (f"Manufacturer: {manufacturer}, URL Manufacturer: {url_manufacturer} : {url}")
+                    if manufacturer == url_manufacturer:
+                        #print(f"Found context URL for {manufacturer}: {url}")
+                        con_url = url
+                        man_website = True
+                        break
+                    else:
+                        #print(f"No context URL found for {manufacturer}.")
+                        con_url = ""
+                        man_website = False
+                    
+                last_manufacturer = manufacturer
             current_entry_index = i + 1
-            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=4,column=1,padx=10,pady=10)
+            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=5,column=1,padx=10,pady=10)
             print(f"\n({i + 1}/{len(entries)}) Searching images for: {manufacturer} {part_number}, aka: {id}")
-            image_urls = fetch_image_urls(manufacturer, part_number, description)
+            image_urls = fetch_image_urls(manufacturer, part_number, con_url)
             
             if image_urls:
                 print("Downloading images...")
                 download_images(image_urls, manufacturer, part_number)
-                resize_images(f"images/staging", f"images/{manufacturer}/{id}")
+                if man_website:
+                    resize_images(f"images/staging", f"images/specific/{manufacturer}/{id}")
+                else:
+                    resize_images(f"images/staging", f"images/generic/{manufacturer}/{id}")
                 clear_directory()
             else:
                 print(f"No images found for {manufacturer} {part_number}.")
@@ -231,6 +257,7 @@ if __name__ == "__main__":
         root.attributes('-fullscreen')
 
     file_var = tk.StringVar()
+    context_var = tk.StringVar()
     entry_var_x = tk.StringVar()
     entry_var_y = tk.StringVar()
     frame = tk.Frame(root)
@@ -247,11 +274,14 @@ if __name__ == "__main__":
     tk.Label(frame, text="Enter range of Entries x,y or enter 0,0 for All Entries:").grid(row=1, column=0, padx=0, pady=0)
     tk.Entry(frame, textvariable=entry_var_x, width=10).grid(row=1, column=1, padx=0, pady=0)
     tk.Entry(frame, textvariable=entry_var_y, width=10).grid(row=1, column=2, padx=0, pady=0)
-    tk.Label(frame, text="Select Excel File:").grid(row=2, column=0, padx=10, pady=10)
+    tk.Label(frame, text="Select Excel File for input:").grid(row=2, column=0, padx=10, pady=10)
     tk.Entry(frame, textvariable=file_var, width=50).grid(row=2, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Browse", command=custom_file_dialog).grid(row=2, column=2, padx=10, pady=10)
-    tk.Button(frame, text="Run", command=run).grid(row=3, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Stop", command=stop_running).grid(row=3, column=2, padx=10, pady=10)
+    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(0)).grid(row=2, column=2, padx=10, pady=10)
+    tk.Label(frame, text="Select Excel File for context urls:").grid(row=3, column=0, padx=10, pady=10)
+    tk.Entry(frame, textvariable=context_var, width=50).grid(row=3, column=1, padx=10, pady=10)
+    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(1)).grid(row=3, column=2, padx=10, pady=10)
+    tk.Button(frame, text="Run", command=run).grid(row=4, column=1, padx=10, pady=10)
+    tk.Button(frame, text="Stop", command=stop_running).grid(row=4, column=2, padx=10, pady=10)
     
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
