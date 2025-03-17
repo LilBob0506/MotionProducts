@@ -17,15 +17,17 @@ def resize_images(input_folder, output_folder):
         i += 1 # Increments counter for next image    
         try:
             image = Image.open(imageopen) # Opens image
+            image2 = Image.open(imageopen) # Opens image for second
         except IOError:
             print(f"Unable to open {pic}. Skipping.")
             continue
         
         if image.mode != 'RGB':
             image = image.convert('RGB') # Converts image to RGB
+            image2 = image2.convert('RGB')
 
         new_496 = image.resize((496, 496)) # Reformats to 496x496
-        new_64 = image.resize((64, 64)) # Reformats to 64x64
+        new_64 = image2.resize((64, 64)) # Reformats to 64x64
 
         out496 = pic # Appends "_496 to end of file name"
         out64 = pic # Appends "_64 to end of file name"

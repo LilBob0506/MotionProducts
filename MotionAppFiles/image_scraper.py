@@ -30,7 +30,10 @@ def resource_path(relative_path):
 # Function to produce search URLs
 def fetch_image_urls(manufacturer, part_number, description, num_images=20):
     headers = {"User-Agent": "Mozilla/5.0"} 
-    search_query = f"{manufacturer} {part_number} {description} product image"
+    #search_query = f"{manufacturer} {part_number} {description} product image"
+    search_query = f'"{manufacturer} {part_number}"'
+    #search_query = f"site:www.skf.com {manufacturer} "part_number}"" Specific sites
+    #Images/Suppliers/Manufactuerer/ID/Size
     
     google_url = f"https://www.google.com/search?tbm=isch&q={urllib.parse.quote(search_query)}"
     bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(search_query)}"
@@ -151,11 +154,13 @@ def custom_file_dialog():
     update_file_list()
 
 def run():
-    global running
+    global running, should_stop
     if running:
         messagebox.showwarning("Warning", "Scraping is already in progress.")
         return
     running = True
+    should_stop = False
+    messagebox.showinfo("Info", "Scraping started.")
     excel_file = file_var.get()
     try:
         entry_range_x = int(entry_var_x.get())
@@ -166,6 +171,8 @@ def run():
         return
     scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,))
     scraping_thread.start()
+    running = False
+    return
 
 def start_scraping(excel_file, entry_range_x, entry_range_y):
     global current_entry_index, total_entry_count
@@ -210,6 +217,7 @@ def stop_running():
     should_stop = True
     running = False
     messagebox.showinfo("Info", f"Scraping stopped at entry {current_entry_index}.")
+    return
     
 
 # Main Function 
