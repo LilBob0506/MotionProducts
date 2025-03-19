@@ -269,19 +269,24 @@ if __name__ == "__main__":
     photo = ImageTk.PhotoImage(img)
 
     img_label = tk.Label(frame, image=photo)
-    img_label.grid(row=0, column=0, columnspan=3, pady=0)
+    img_label.grid(row=0, column=0, columnspan=3, pady=5)
 
-    tk.Label(frame, text="Enter range of Entries x,y or enter 0,0 for All Entries:").grid(row=1, column=0, padx=0, pady=0)
-    tk.Entry(frame, textvariable=entry_var_x, width=10).grid(row=1, column=1, padx=0, pady=0)
-    tk.Entry(frame, textvariable=entry_var_y, width=10).grid(row=1, column=2, padx=0, pady=0)
-    tk.Label(frame, text="Select Excel File for input:").grid(row=2, column=0, padx=10, pady=10)
-    tk.Entry(frame, textvariable=file_var, width=50).grid(row=2, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(0)).grid(row=2, column=2, padx=10, pady=10)
-    tk.Label(frame, text="Select Excel File for context urls:").grid(row=3, column=0, padx=10, pady=10)
-    tk.Entry(frame, textvariable=context_var, width=50).grid(row=3, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(1)).grid(row=3, column=2, padx=10, pady=10)
-    tk.Button(frame, text="Run", command=run).grid(row=4, column=1, padx=10, pady=10)
-    tk.Button(frame, text="Stop", command=stop_running).grid(row=4, column=2, padx=10, pady=10)
+
+    tk.Label(frame, text="Enter range of Entries (x,y) or 0,0 for All:", anchor="w").grid(row=1, column=0, sticky="w", padx=5, pady=5)
+    tk.Entry(frame, textvariable=entry_var_x, width=10).grid(row=1, column=1, padx=5, pady=5, sticky="w") 
+    tk.Entry(frame, textvariable=entry_var_y, width=10).grid(row=1, column=1, padx=5, pady=5, sticky="e") 
+
+
+    tk.Label(frame, text="Select Excel File for input:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+    tk.Entry(frame, textvariable=file_var, width=50).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(0)).grid(row=2, column=2, padx=5, pady=5)
+
+    tk.Label(frame, text="Select Excel File for context URLs:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+    tk.Entry(frame, textvariable=context_var, width=50).grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(1)).grid(row=3, column=2, padx=5, pady=5)
+
+    tk.Button(frame, text="Run", command=run).grid(row=4, column=1, padx=5, pady=10)
+    tk.Button(frame, text="Stop", command=stop_running).grid(row=4, column=2, padx=5, pady=10)
     
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
