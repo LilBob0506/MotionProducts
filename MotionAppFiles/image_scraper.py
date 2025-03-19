@@ -244,6 +244,12 @@ def stop_running():
     running = False
     messagebox.showinfo("Info", f"Scraping stopped at entry {current_entry_index}.")
     return
+
+def clear_fields():
+    entry_var_x.set("")
+    entry_var_y.set("")
+    file_var.set("")
+    context_var.set("")
     
 
 # Main Function 
@@ -272,20 +278,23 @@ if __name__ == "__main__":
     img_label = tk.Label(frame, image=photo)
     img_label.grid(row=0, column=0, columnspan=3, pady=5)
 
-
+    # Range of entries
     tk.Label(frame, text="Enter range of Entries (x,y) or 0,0 for All:", anchor="w").grid(row=1, column=0, sticky="w", padx=5, pady=5)
-    tk.Entry(frame, textvariable=entry_var_x, width=10).grid(row=1, column=1, padx=5, pady=5, sticky="w") 
-    tk.Entry(frame, textvariable=entry_var_y, width=10).grid(row=1, column=1, padx=5, pady=5, sticky="e") 
+    tk.Entry(frame, textvariable=entry_var_x, width=10, bd=1, relief="solid", highlightthickness=2).grid(row=1, column=1, padx=5, pady=5, sticky="w") 
+    tk.Entry(frame, textvariable=entry_var_y, width=10, bd=1, relief="solid", highlightthickness=2).grid(row=1, column=1, padx=5, pady=5, sticky="e") 
 
-
+    # Excel file input
     tk.Label(frame, text="Select Excel File for input:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
-    tk.Entry(frame, textvariable=file_var, width=50).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+    tk.Entry(frame, textvariable=file_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
     tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(0)).grid(row=2, column=2, padx=5, pady=5)
 
+    # Content URLs
     tk.Label(frame, text="Select Excel File for context URLs:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
-    tk.Entry(frame, textvariable=context_var, width=50).grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+    tk.Entry(frame, textvariable=context_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=3, column=1, padx=5, pady=5, sticky="ew")
     tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(1)).grid(row=3, column=2, padx=5, pady=5)
 
+    # Clear, Run, Stop buttons
+    tk.Button(frame, text="Clear", command=clear_fields).grid(row=4, column=0, padx=5, pady=10)
     tk.Button(frame, text="Run", command=run).grid(row=4, column=1, padx=5, pady=10)
     tk.Button(frame, text="Stop", command=stop_running).grid(row=4, column=2, padx=5, pady=10)
     
