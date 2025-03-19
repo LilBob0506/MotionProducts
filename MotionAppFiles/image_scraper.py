@@ -249,6 +249,7 @@ def stop_running():
 # Main Function 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.config(padx=30, pady=30) 
     root.title("Image Scraper")
 
     if os.name == 'nt':
