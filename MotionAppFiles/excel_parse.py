@@ -7,6 +7,7 @@ def get_entries(file_path):
         #df = pd.read_excel(file_path, nrows=10)
         if "MFR_NAME" in df.columns and "Part Number" in df.columns and "Product Description" and "[<ID>]" in df.columns:
             # Convert each row to a tuple (manufacturer, part_number, Product Description, [<ID>])
+            df = df.sort_values(by="MFR_NAME")
             entries = [tuple(row) for row in df[["MFR_NAME", "Part Number", "Product Description", "[<ID>]"]].dropna().values]
             return entries
         else:
@@ -20,6 +21,7 @@ def get_context_urls(file_path):
         df = pd.read_excel(file_path)
         if "MFR_NAME" in df.columns and "URL" in df.columns:
             # Convert each row to a tuple (manufacturer, url)
+            df = df.sort_values(by="MFR_NAME")
             entries = [tuple(row) for row in df[["MFR_NAME", "URL"]].dropna().values]
             return entries
         else:
