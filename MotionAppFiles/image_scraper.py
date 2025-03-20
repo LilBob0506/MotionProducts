@@ -30,14 +30,20 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 # Function to produce search URLs
-def fetch_image_urls(manufacturer, part_number, con_url):
+def fetch_image_urls(manufacturer, part_number, con_url, description):
     global man_website
     num_images = 20
     headers = {"User-Agent": "Mozilla/5.0"} 
     if man_website:
-        search_query = f'site:{con_url} "{manufacturer} {part_number}"' #Specific sites
+        if part_number:
+            search_query = f'site:{con_url} "{manufacturer} {part_number}"' #Specific sites
+        else:
+            search_query = f'site:{con_url} "{manufacturer} {description}"'
     else:
-        search_query = f'"{manufacturer} {part_number}"'
+        if part_number:
+            search_query = f'"{manufacturer} {part_number}"'
+        else:
+            search_query = f'"{manufacturer} {description}"'
     
     google_url = f"https://www.google.com/search?tbm=isch&q={urllib.parse.quote(search_query)}"
     bing_url = f"https://www.bing.com/images/search?q={urllib.parse.quote(search_query)}"
@@ -188,15 +194,20 @@ def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
     context_urls = get_context_urls(context_file)
     total_entry_count = len(entries) + 1
     last_manufacturer = ""
+    repeat = 0
     if entries and context_urls:
         for i, (manufacturer, part_number, description, id) in enumerate(entries):
             global should_stop
             if should_stop:
                 break
-            # Skip certain manufactuers for accuracy checking
-            #if manufacturer == "3M" or manufacturer == "3M HEALTH CARE":
-            #    continue
-            # For range of entries
+            
+            if manufacturer == last_manufacturer:
+                repeat += 1
+                if repeat >= 5:
+                    continue
+            if manufacturer != last_manufacturer:
+                repeat = 0
+
             if (entry_range_x != 0 and i < entry_range_x -1) or (entry_range_y != 0 and entry_range_y <= i):
                 continue
             if manufacturer != last_manufacturer:
@@ -216,7 +227,7 @@ def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
             current_entry_index = i + 1
             tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=5,column=1,padx=10,pady=10)
             print(f"\n({i + 1}/{len(entries)}) Searching images for: {manufacturer} {part_number}, aka: {id}")
-            image_urls = fetch_image_urls(manufacturer, part_number, con_url)
+            image_urls = fetch_image_urls(manufacturer, part_number, con_url, description)
             
             if image_urls:
                 print("Downloading images...")
