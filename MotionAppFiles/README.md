@@ -38,6 +38,13 @@ python image_scraper.py
 Enter the Excel file path: ~/"Your_Directory_For_Repos"/MotionProducts/MotionAppFiles/List.xlsx
 ```
 
+## Docker Run
+'''sh
+docker run -it \
+  -e DISPLAY=host.docker.internal:0 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -v /Users/YOURNAME/Downloads:/host_files \
+  motion-products
 
 ---
 
