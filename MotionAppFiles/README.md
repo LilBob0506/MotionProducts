@@ -39,7 +39,7 @@ Enter the Excel file path: ~/"Your_Directory_For_Repos"/MotionProducts/MotionApp
 ```
 
 ## Docker Run
-'''sh
+```sh
 docker run -it \
   -e DISPLAY=host.docker.internal:0 \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
