@@ -11,6 +11,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import threading
+from tkinter.filedialog import askopenfilename
 
 should_stop = False # Flag to check if scraping should stop
 running = False # Flag to check if scraping is in progress
@@ -92,79 +93,26 @@ def clear_directory():
     print("Directory cleared.")
 
 def custom_file_dialog(option):
-    def on_select():
-        selected_file = file_listbox.get(file_listbox.curselection())
-        file_path = os.path.join(current_dir, selected_file)
-        if os.path.isfile(file_path):
-            if option == 0:
-                file_var.set(file_path)
-            elif option == 1:
-                context_var.set(file_path)
-            dialog.destroy()
-        else:
-            messagebox.showerror("Error", "Please select a valid file.")
-
-    def on_double_click(event):
-        selected_file = file_listbox.get(file_listbox.curselection())
-        file_path = os.path.join(current_dir, selected_file)
-        if os.path.isdir(file_path):
-            on_open()
-        elif os.path.isfile(file_path):
-            on_select()
-
-    def on_back():
-        nonlocal current_dir
-        parent_dir = os.path.dirname(current_dir)
-        if os.path.commonpath([home_dir, parent_dir]) == home_dir:
-            current_dir = parent_dir
-            update_file_list()
-
-    def on_open():
-        nonlocal current_dir
-        selected_file = file_listbox.get(file_listbox.curselection())
-        file_path = os.path.join(current_dir, selected_file)
-        if os.path.isdir(file_path):
-            current_dir = file_path
-            update_file_list()
-        elif os.path.isfile(file_path):
-            on_select()
-
-    def update_file_list():
-        file_listbox.delete(0, tk.END)
-        for item in os.listdir(current_dir):
-            item_path = os.path.join(current_dir, item)
-            if not item.startswith('.') and os.path.isdir(item_path) or item_path.endswith('.xlsx'):
-                file_listbox.insert(tk.END, item)
-        current_dir_label.config(text=current_dir)
-
     global running
     if running:
         messagebox.showwarning("Warning", "Scraping is already in progress.")
         return
-    home_dir = os.path.expanduser("~")
-    current_dir = home_dir
 
-    dialog = tk.Toplevel(root)
-    dialog.title("Select Excel File")
-    dialog.geometry("600x400")
+    file_types = [("Excel files", "*.xlsx"), ("All files", "*.*")]
 
-    current_dir_label = tk.Label(dialog, text=current_dir)
-    current_dir_label.pack(pady=10)
+    file_path = askopenfilename(
+        initialdir="/host_files",  # Your Docker-mounted directory
+        title="Select an Excel file",
+        filetypes=file_types
+    )
 
-    file_listbox = tk.Listbox(dialog)
-    file_listbox.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
-    file_listbox.bind("<Double-1>", on_double_click)
-
-    back_button = tk.Button(dialog, text="Back", command=on_back)
-    back_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-    open_button = tk.Button(dialog, text="Open", command=on_open)
-    open_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-    select_button = tk.Button(dialog, text="Select", command=on_select)
-    select_button.pack(side=tk.RIGHT, padx=10, pady=10)
-
-    update_file_list()
+    if file_path:  # If a file is selected
+        if option == 0:
+            file_var.set(file_path)
+        elif option == 1:
+            context_var.set(file_path)
+    else:
+        messagebox.showwarning("Warning", "No file selected.")
 
 def run():
     global running, should_stop
@@ -297,12 +245,12 @@ if __name__ == "__main__":
     # Excel file input
     tk.Label(frame, text="Select Excel File for input:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
     tk.Entry(frame, textvariable=file_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
-    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(0)).grid(row=2, column=2, padx=5, pady=5)
+    tk.Button(frame, text="Browse", command=lambda: file_var.set(askopenfilename(initialdir="/host_files", filetypes=[("Excel files", "*.xlsx")], title="Select an Excel file"))).grid(row=2, column=2, padx=5, pady=5)
 
     # Content URLs
     tk.Label(frame, text="Select Excel File for context URLs:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
     tk.Entry(frame, textvariable=context_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=3, column=1, padx=5, pady=5, sticky="ew")
-    tk.Button(frame, text="Browse", command=lambda: custom_file_dialog(1)).grid(row=3, column=2, padx=5, pady=5)
+    tk.Button(frame, text="Browse", command=lambda: context_var.set(askopenfilename(initialdir="/host_files", filetypes=[("Excel files", "*.xlsx")], title="Select an Excel file"))).grid(row=3, column=2, padx=5, pady=5)
 
     # Clear, Run, Stop buttons
     tk.Button(frame, text="Clear", command=clear_fields).grid(row=4, column=0, padx=5, pady=10)
