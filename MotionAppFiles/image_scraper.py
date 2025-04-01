@@ -121,6 +121,7 @@ def run():
         return
     running = True
     should_stop = False
+    run_button.config(state=tk.DISABLED)
     messagebox.showinfo("Info", "Scraping started.")
     excel_file = file_var.get()
     context_file = context_var.get()
@@ -137,7 +138,7 @@ def run():
     return
 
 def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
-    global current_entry_index, total_entry_count, man_website
+    global current_entry_index, total_entry_count, man_website,running
     entries = get_entries(excel_file)  # Fetch entries as tuples
     context_urls = get_context_urls(context_file)
     total_entry_count = len(entries) + 1
@@ -189,6 +190,9 @@ def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
                 print(f"No images found for {manufacturer} {part_number}.")
     else:
         print("No valid entries found in the Excel file.")
+    
+    running = False
+    run_button.config(state=tk.NORMAL)
     return
 
 def on_closing():
@@ -254,7 +258,8 @@ if __name__ == "__main__":
 
     # Clear, Run, Stop buttons
     tk.Button(frame, text="Clear", command=clear_fields).grid(row=4, column=0, padx=5, pady=10)
-    tk.Button(frame, text="Run", command=run).grid(row=4, column=1, padx=5, pady=10)
+    run_button = tk.Button(frame, text="Run", command=run)
+    run_button.grid(row=4, column=1, padx=5, pady=10)
     tk.Button(frame, text="Stop", command=stop_running).grid(row=4, column=2, padx=5, pady=10)
     
     root.protocol("WM_DELETE_WINDOW", on_closing)
