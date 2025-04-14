@@ -240,7 +240,7 @@ def load_config(name):
 if __name__ == "__main__":
     root = tk.Tk()
     root.config(padx=30, pady=30) 
-    root.title("Image Scraper")
+    root.title("")
 
     if os.name == 'nt':
         root.state('zoomed')
