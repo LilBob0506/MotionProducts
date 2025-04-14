@@ -12,6 +12,9 @@ from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
 import threading
 from tkinter.filedialog import askopenfilename
+import json
+
+CONFIG_FILE = "config.json"
 
 should_stop = False # Flag to check if scraping should stop
 running = False # Flag to check if scraping is in progress
@@ -69,8 +72,8 @@ def fetch_image_urls(manufacturer, part_number, con_url, description):
     return image_urls
 
 # Function to download images and name them "ManufacturerName"_"PartNumber"
-def download_images(image_urls, manufacturer, part_number):
-    save_dir = f"images/staging"
+def download_images(image_urls, manufacturer, part_number, output_dir):
+    save_dir = f"{output_dir}/images/staging"
     os.makedirs(save_dir, exist_ok=True)
     
     for idx, img_url in enumerate(image_urls):
@@ -81,8 +84,8 @@ def download_images(image_urls, manufacturer, part_number):
         except Exception as e:
             print(f"Failed to download {img_url}: {e}")
 
-def clear_directory():
-    dir_path = "images/staging"
+def clear_directory(output_dir):
+    dir_path = f"{output_dir}/images/staging"
     for filename in os.listdir(dir_path):
         file_path = os.path.join(dir_path, filename)
         try:
@@ -125,6 +128,7 @@ def run():
     messagebox.showinfo("Info", "Scraping started.")
     excel_file = file_var.get()
     context_file = context_var.get()
+    output_dir = output_var.get()
     try:
         entry_range_x = int(entry_var_x.get())
         entry_range_y = int(entry_var_y.get())
@@ -132,12 +136,12 @@ def run():
         messagebox.showerror("Error", "Please enter valid entry range.")
         running = False
         return
-    scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,context_file,))
+    scraping_thread = threading.Thread(target=start_scraping, args=(excel_file,entry_range_x,entry_range_y,context_file,output_dir,))
     scraping_thread.start()
     running = False
     return
 
-def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
+def start_scraping(excel_file, entry_range_x, entry_range_y, context_file,output_dir):
     global current_entry_index, total_entry_count, man_website,running
     entries = get_entries(excel_file)  # Fetch entries as tuples
     context_urls = get_context_urls(context_file)
@@ -174,18 +178,18 @@ def start_scraping(excel_file, entry_range_x, entry_range_y, context_file):
                     
                 last_manufacturer = manufacturer
             current_entry_index = i + 1
-            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=5,column=1,padx=10,pady=10)
+            tk.Label(frame, text= f"Entry ({current_entry_index}/{total_entry_count})").grid(row=6,column=1,padx=10,pady=10)
             print(f"\n({i + 1}/{len(entries)}) Searching images for: {manufacturer} {part_number}, aka: {id}")
             image_urls = fetch_image_urls(manufacturer, part_number, con_url, description)
             
             if image_urls:
                 print("Downloading images...")
-                download_images(image_urls, manufacturer, part_number)
+                download_images(image_urls, manufacturer, part_number,output_dir)
                 if man_website:
-                    resize_images(f"images/staging", f"images/specific/{manufacturer}/{id}")
+                    resize_images(f"{output_dir}/images/staging", f"{output_dir}/images/specific/{manufacturer}/{id}")
                 else:
-                    resize_images(f"images/staging", f"images/generic/{manufacturer}/{id}")
-                clear_directory()
+                    resize_images(f"{output_dir}/images/staging", f"{output_dir}/images/generic/{manufacturer}/{id}")
+                clear_directory(output_dir)
             else:
                 print(f"No images found for {manufacturer} {part_number}.")
     else:
@@ -213,7 +217,23 @@ def clear_fields():
     entry_var_y.set("")
     file_var.set("")
     context_var.set("")
+    output_var.set("")
     
+def save_config(name, value):
+    config = {}
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r") as f:
+            config = json.load(f)
+    config[name] = value
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f)
+
+def load_config(name):
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, "r") as f:
+            config = json.load(f)
+            return config.get(name, "")
+    return ""
 
 # Main Function 
 if __name__ == "__main__":
@@ -227,7 +247,11 @@ if __name__ == "__main__":
         root.attributes('-fullscreen')
 
     file_var = tk.StringVar()
+    file_var.set(load_config("file_var"))
+    output_var = tk.StringVar()
+    output_var.set(load_config("output_var"))
     context_var = tk.StringVar()
+    context_var.set(load_config("context_var"))
     entry_var_x = tk.StringVar()
     entry_var_y = tk.StringVar()
     frame = tk.Frame(root)
@@ -249,19 +273,36 @@ if __name__ == "__main__":
     # Excel file input
     tk.Label(frame, text="Select Excel File for input:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
     tk.Entry(frame, textvariable=file_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=2, column=1, padx=5, pady=5, sticky="ew")
-    tk.Button(frame, text="Browse", command=lambda: file_var.set(askopenfilename(initialdir="/host_files", filetypes=[("Excel files", "*.xlsx")], title="Select an Excel file"))).grid(row=2, column=2, padx=5, pady=5)
+    tk.Button(frame, text="Browse", command=lambda: [
+        file_var.set(askopenfilename(initialdir="/host_files", filetypes=[("Excel files", "*.xlsx")], title="Select an Excel file")),
+        save_config("file_var", file_var.get())
+        ]
+    ).grid(row=2, column=2, padx=5, pady=5)
 
     # Content URLs
     tk.Label(frame, text="Select Excel File for context URLs:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
     tk.Entry(frame, textvariable=context_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=3, column=1, padx=5, pady=5, sticky="ew")
-    tk.Button(frame, text="Browse", command=lambda: context_var.set(askopenfilename(initialdir="/host_files", filetypes=[("Excel files", "*.xlsx")], title="Select an Excel file"))).grid(row=3, column=2, padx=5, pady=5)
+    tk.Button(frame, text="Browse", command=lambda: [
+        context_var.set(askopenfilename(initialdir="/host_files", filetypes=[("Excel files", "*.xlsx")], title="Select an Excel file")),
+        save_config("context_var", context_var.get())
+        ]
+        ).grid(row=3, column=2, padx=5, pady=5)
 
     # Clear, Run, Stop buttons
-    tk.Button(frame, text="Clear", command=clear_fields).grid(row=4, column=0, padx=5, pady=10)
+    tk.Button(frame, text="Clear", command=clear_fields).grid(row=5, column=0, padx=5, pady=10)
     run_button = tk.Button(frame, text="Run", command=run)
-    run_button.grid(row=4, column=1, padx=5, pady=10)
-    tk.Button(frame, text="Stop", command=stop_running).grid(row=4, column=2, padx=5, pady=10)
+    run_button.grid(row=5, column=1, padx=5, pady=10)
+    tk.Button(frame, text="Stop", command=stop_running).grid(row=5, column=2, padx=5, pady=10)
     
+    #Output directory button
+    tk.Label(frame, text="Select a Destination for output:").grid(row=4, column=0, sticky="w", padx=5, pady=5)
+    tk.Entry(frame, textvariable=output_var, width=50, bd=1, relief="solid", highlightthickness=2).grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+    tk.Button(frame, text="Browse", command=lambda: [
+        output_var.set(filedialog.askdirectory(initialdir="/host_files", title="Select a Destination for output")),
+        save_config("output_var", output_var.get())
+        ]
+        ).grid(row=4, column=2, padx=5, pady=5)
+
     root.protocol("WM_DELETE_WINDOW", on_closing)
 
     root.mainloop()
