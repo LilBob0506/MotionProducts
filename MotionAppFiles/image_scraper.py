@@ -153,13 +153,14 @@ def start_scraping(excel_file, entry_range_x, entry_range_y, context_file,output
             global should_stop
             if should_stop:
                 break
-            
-            if manufacturer == last_manufacturer:
-                repeat += 1
-                if repeat >= 5:
-                    continue
-            if manufacturer != last_manufacturer:
-                repeat = 0
+            #Debug statement for moving through manufactuerers rapidly
+            #if manufacturer == last_manufacturer:
+            #    repeat += 1
+            #    if repeat >= 5:
+            #        continue
+            #if manufacturer != last_manufacturer:
+            #    repeat = 0
+            #End debug
 
             if (entry_range_x != 0 and i < entry_range_x -1) or (entry_range_y != 0 and entry_range_y <= i):
                 continue
