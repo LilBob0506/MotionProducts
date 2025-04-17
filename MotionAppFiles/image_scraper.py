@@ -14,7 +14,14 @@ import threading
 from tkinter.filedialog import askopenfilename
 import json
 
-CONFIG_FILE = "config.json"
+if os.name == 'nt':  # Windows
+    CONFIG_DIR = os.path.join(os.environ["USERPROFILE"], "ImageScraperFiles")
+else:  # Unix-like (Linux/Mac)
+    CONFIG_DIR = os.path.join(os.environ["HOME"], "ImageScraperFiles")
+
+CONFIG_FILE = os.path.join(CONFIG_DIR,"config.json")
+
+os.makedirs(CONFIG_DIR, exist_ok=True)
 
 should_stop = False # Flag to check if scraping should stop
 running = False # Flag to check if scraping is in progress
