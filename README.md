@@ -77,7 +77,7 @@ Searches both Google Images and Bing Images for each entry.
 &emsp; Parses HTML responses with BeautifulSoup package
 
 - External Resources\
-&emsp; Google Images: https://www.google.com/search?tbm=isch\
+&emsp; Google Images: https://www.google.com/search?tbm=isch \
 &emsp; Bing Images: https://www.bing.com/images/search
 
 - Notes:\
