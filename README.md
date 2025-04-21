@@ -152,7 +152,7 @@ No compiler or build system needed - just Python
 
 - To run: `python image_scraper.py`\
 - To package, tools like PyInstaller can be used:
-`pyinstaller --noconfirm --onefile image_scraper.py`
+`[py -m] pyinstaller --onefile --windowed --add-data "Motion_PP_SQ.png:." image_scraper.py`
 
 ### Testing
 
