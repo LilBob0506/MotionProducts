@@ -215,3 +215,31 @@ footer {
 .dropdown-content a:hover {
     background-color: #eee;
 }
+
+/* Demo Page */
+.demo-main {
+    max-width: 80%;
+    margin: 30px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-container {
+    max-width: 800px;
+    margin: 0 auto 30px;
+}
+
+.video-container video {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.demo-instructions {
+    text-align: left;
+    max-width: 800px;
+    margin: 0 auto;
+    font-size: 18px;
+}
