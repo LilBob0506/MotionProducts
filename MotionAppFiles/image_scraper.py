@@ -226,6 +226,10 @@ def clear_fields():
     file_var.set("")
     context_var.set("")
     output_var.set("")
+
+def reset_all():
+    clear_fields()
+    messagebox.showinfo("Reset", "All fields have been cleared.")
     
 def save_config(name, value):
     config = {}
@@ -301,6 +305,7 @@ if __name__ == "__main__":
     run_button = tk.Button(frame, text="Run", command=run)
     run_button.grid(row=5, column=1, padx=5, pady=10)
     tk.Button(frame, text="Stop", command=stop_running).grid(row=5, column=2, padx=5, pady=10)
+    tk.Button(frame, text="Reset", command=reset_all).grid(row=5, column=3, padx=5, pady=10)
     
     #Output directory button
     tk.Label(frame, text="Select a Destination for output:").grid(row=4, column=0, sticky="w", padx=5, pady=5)
